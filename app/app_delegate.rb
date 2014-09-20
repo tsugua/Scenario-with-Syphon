@@ -43,9 +43,12 @@ class AppDelegate
   
   def save_image(image)
     
-    path = "test.tiff"
-    didWrite = image.TIFFRepresentation.writeToFile(path, atomically:true)
+    path = "test.png"
+    data = image.representationUsingType(NSPNGFileType, properties: nil)
+    data.writeToFile(path, atomically:true)
     p 'wrote'
+    
+    # texture_from_image
     
   end
   
@@ -59,9 +62,9 @@ class AppDelegate
     
     # This version is saving directly as an imagerep and then trying to turn it into a CGImage. Trying to turn it into a CGImage is returning NSCFType which is a bad memory pointer from what I can tell.
     
-    # imageRep = ImageCapture.imageRepFromSceneKitView(@view, backingScale: NSScreen.mainScreen.backingScaleFactor)
+    imageRep = ImageCapture.imageRepFromSceneKitView(@view, backingScale: NSScreen.mainScreen.backingScaleFactor)
     #
-    # p imageRep
+    save_image(imageRep)
     # pixelData = imageRep.CGImage
     # p pixelData
     # texture = GLKTextureLoader.textureWithCGImage(pixelData, options:nil, error:nil)
@@ -69,11 +72,22 @@ class AppDelegate
     
     
     #This version extracts the whole texture from the objective-C file. (Doesn't work)
-    texture = ImageCapture.textureFromSceneKitView(@view, backingScale: NSScreen.mainScreen.backingScaleFactor)
+    # texture = ImageCapture.textureFromSceneKitView(@view, backingScale: NSScreen.mainScreen.backingScaleFactor)
+    
+    options = {GLKTextureLoaderOriginBottomLeft => true}
+    perror = Pointer.new(:object) 
+    
+    path = "test.tiff"
+    
+    texture = GLKTextureLoader.textureWithContentsOfFile(path, options:options, error:perror)
+    
+    if (texture == nil) 
+      puts("Error loading file: %@", perror[0].localizedDescription)
+    end
     
     
    
-    p texture
+    p texture.width
     if texture
 
       if @syphonServer.hasClients

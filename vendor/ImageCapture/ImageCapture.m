@@ -85,8 +85,11 @@
                                                                      bitsPerPixel:4*8];
     [[sceneKitView openGLContext] makeCurrentContext];
     glReadPixels(0, 0, (int)width, (int)height, GL_RGBA, GL_UNSIGNED_BYTE, [imageRep bitmapData]);
-	
+    [NSOpenGLContext clearCurrentContext];
+
 	CGImageRef pixelData = [imageRep CGImage];
+	// NSLog(@"cgiimageref: %i", pixelData);
+		
 
 	// CGContextRef gtx = CGBitmapContextCreate(NULL, width, height, bitsPerComponent, bytesPerRow, colorSpace, kCGImageAlphaPremultipliedLast);
     
