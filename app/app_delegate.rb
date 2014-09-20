@@ -44,7 +44,7 @@ class AppDelegate
   def save_image(image)
     
     path = "test.png"
-    data = image.representationUsingType(NSPNGFileType, properties: nil)
+    # data = image.representationUsingType(NSPNGFileType, properties: nil)
     data.writeToFile(path, atomically:true)
     p 'wrote'
     
@@ -64,7 +64,9 @@ class AppDelegate
     
     imageRep = ImageCapture.imageRepFromSceneKitView(@view, backingScale: NSScreen.mainScreen.backingScaleFactor)
     #
-    save_image(imageRep)
+    
+    data = imageRep.representationUsingType(NSPNGFileType, properties: nil)
+    # save_image(imageRep)
     # pixelData = imageRep.CGImage
     # p pixelData
     # texture = GLKTextureLoader.textureWithCGImage(pixelData, options:nil, error:nil)
@@ -74,30 +76,30 @@ class AppDelegate
     #This version extracts the whole texture from the objective-C file. (Doesn't work)
     # texture = ImageCapture.textureFromSceneKitView(@view, backingScale: NSScreen.mainScreen.backingScaleFactor)
     
-    options = {GLKTextureLoaderOriginBottomLeft => true}
+    options = {GLKTextureLoaderGenerateMipmaps => false, GLKTextureLoaderOriginBottomLeft => true}
     perror = Pointer.new(:object) 
     
     path = "test.tiff"
     
-    texture = GLKTextureLoader.textureWithContentsOfFile(path, options:options, error:perror)
+    texture = GLKTextureLoader.textureWithContentsOfData(data, options:options, error:perror)
     
     if (texture == nil) 
-      puts("Error loading file: %@", perror[0].localizedDescription)
+      p "Error loading file: #{perror[0].localizedDescription}"
     end
     
     
    
-    p texture.width
+    p "#{texture.width}, #{texture.height}, #{texture.name} #{texture.target}, #{texture.textureOrigin}"
     if texture
 
-      if @syphonServer.hasClients
-        @syphonServer.publishFrameTexture(texture.name,
-                        textureTarget: GL_TEXTURE_2D,
-                          imageRegion: NSMakeRect(0, 0, texture.width, texture.height),
-                    textureDimensions: NSMakeSize(texture.width, texture.height),
-                              flipped: true)
-
-      end
+      # if @syphonServer.hasClients
+      #   @syphonServer.publishFrameTexture(texture.name,
+      #                   textureTarget: GL_TEXTURE_2D,
+      #                     imageRegion: NSMakeRect(0, 0, texture.width, texture.height),
+      #               textureDimensions: NSMakeSize(texture.width, texture.height),
+      #                         flipped: true)
+      #
+      # end
     end
   end
   
